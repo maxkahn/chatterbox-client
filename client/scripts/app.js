@@ -23,15 +23,13 @@ app.send = function(message) {
   data: JSON.stringify(message),
   contentType: 'application/json',
   success: function (data) {
-    console.log("Chatterbox: Added Message");
+    console.log("Chatterbox: Added Message", message);
   },
   error: function (data) {
     // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
-    console.error('chatterbox: Failed to send message');
+    console.error('chatterbox: Failed to send message',this.server,message);
   }});
   };
-
-  app.send(somecontent);
   
 
 app.fetch = function() {
@@ -153,7 +151,6 @@ app.fetch = function() {
   app.clearMessages = function() {
     var childArr = $('#chats').children();
     for (var i = 0; i < childArr.length; i++) {
-      console.log(childArr[i]);
       childArr[i].remove();
     };
   };
@@ -186,13 +183,15 @@ app.addFriend = function(friend) {
   }
 };
 
-app.handleSubmit = function() {
+
+
+app.handleSubmit = function(userName) {
     var form = document.getElementById('form');
     var userMessage = document.getElementById('message');
     var messageContents = userMessage.value;
     var toSend = {};
     toSend.text = messageContents;
-    toSend.username = userName.value;
+    toSend.username = userName;
     app.send(toSend);
 };
 
@@ -230,16 +229,22 @@ $(document).ready(function() {
   // get login information
   var login = document.getElementById('login');
   var userName = document.getElementById('username');
+  var userNameValue = userName.value || "anonymous";
 
    $('#firstlogin').on('click', function() {
-    $('#login').text("Welcome, " + userName.value);
+    userNameValue = userName.value;
+    $('#login').text("Welcome, " + userNameValue);
    });
 
    // get chat body
 
 
-   $('#submit').on('click', function() {
-    app.handleSubmit();
+   $('#send .submit').on('click', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    app.handleSubmit(userNameValue);
+    $('#message').val(null);
+    return false;
    }); 
 
     var roomform = document.getElementById('roomform');
@@ -247,6 +252,7 @@ $(document).ready(function() {
 
    $('#submitroom').on('click', function() {
     app.addRoom(roomname.value);
+    $('#newroom').val(null);
    }); 
 
 });
